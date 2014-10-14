@@ -60,7 +60,7 @@ function showAddAnotherPopup(triggeringLink) {
     return showAdminPopup(triggeringLink, /^add_/);
 }
 
-function dismissAddAnotherPopup(win, newId, newRepr) {
+function dismissAddAnotherPopup(win, newId, newRepr, excludeFromList) {
     // newId and newRepr are expected to have previously been escaped by
     // django.utils.html.escape.
     newId = html_unescape(newId);
@@ -68,6 +68,7 @@ function dismissAddAnotherPopup(win, newId, newRepr) {
     var name = windowname_to_id(win.name);
     var elem = document.getElementById(name);
     var o;
+    if (excludeFromList === "True") { return win.close(); }
     if (elem) {
         var elemName = elem.nodeName.toUpperCase();
         if (elemName == 'SELECT') {

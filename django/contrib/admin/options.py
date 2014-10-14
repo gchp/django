@@ -1124,6 +1124,7 @@ class ModelAdmin(BaseModelAdmin):
         """
         Determines the HttpResponse for the add_view stage.
         """
+        exclude_from_filter = False
         opts = obj._meta
         pk_value = obj._get_pk_val()
         preserved_filters = self.get_preserved_filters(request)
@@ -1138,10 +1139,19 @@ class ModelAdmin(BaseModelAdmin):
             else:
                 attr = obj._meta.pk.attname
             value = obj.serializable_value(attr)
+            related_lookups = opts.related_fkey_lookups
+
+            # check if the new object should be excluded from foreign key lookups
+            for lookup in related_lookups:
+                for key, val in lookup.items():
+                    if not (getattr(obj, key) == val):
+                        exclude_from_filter = True
+                        
             return SimpleTemplateResponse('admin/popup_response.html', {
                 'pk_value': escape(pk_value),  # for possible backwards-compatibility
                 'value': escape(value),
-                'obj': escapejs(obj)
+                'obj': escapejs(obj),
+                'exclude': exclude_from_filter
             })
 
         elif "_continue" in request.POST:
